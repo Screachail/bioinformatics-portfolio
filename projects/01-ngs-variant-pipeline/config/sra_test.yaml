@@ -1,0 +1,19 @@
+# Test SRA accessions for pipeline development
+# Small datasets for quick testing
+
+test_datasets:
+  - accession: SRR000001
+    description: "First public SRA dataset - very small"
+    organism: "E. coli"
+    size: "~50MB"
+    
+  - accession: SRR1553425  
+    description: "Small bacterial WGS dataset"
+    organism: "E. coli"
+    size: "~100MB"
+
+# Production datasets (larger, comment out for testing)
+# production_datasets:
+#   - accession: SRR1234567
+#     description: "Human WGS sample"
+#     size: "~20GB"
