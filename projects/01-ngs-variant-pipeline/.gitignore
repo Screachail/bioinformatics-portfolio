@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+env/
+.env
+*.egg-info/
+
+# Genomics data
+*.fastq
+*.fastq.gz
+*.bam
+*.sam
+*.vcf
+*.vcf.gz
+*.bed
+*.bai
+*.fai
+
+# Logs
+*.log
+logs/
+
+# Airflow
+airflow.db
+airflow.cfg
+airflow-webserver.pid
+
+# dbt
+target/
+dbt_packages/
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.aider*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.json
+!package.json
+.env
+secrets/
+credentials/
+
+# Data directories
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
