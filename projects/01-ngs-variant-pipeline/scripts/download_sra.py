@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import subprocess
 from typing import List, Tuple
 
 from pysradb.sraweb import SRAweb
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 def download_fastq(accession: str, output_dir: str = "data/raw") -> Tuple[bool, List[str]]:
     """
-    Download FASTQ files from NCBI SRA for a given accession.
+    Download FASTQ files from NCBI SRA for a given accession using fasterq-dump.
 
     Args:
         accession (str): SRA accession number (e.g., 'SRX123456')
@@ -25,23 +26,41 @@ def download_fastq(accession: str, output_dir: str = "data/raw") -> Tuple[bool, 
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
         
-        # Initialize SRAweb
+        # Check if fasterq-dump is available
+        try:
+            subprocess.run(['fasterq-dump', '--version'], check=True, 
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            raise RuntimeError("fasterq-dump not found. Please install SRA Toolkit.")
+        
+        # Initialize SRAweb to get metadata
         sra_web = SRAweb()
         
-        # Download FASTQ files
-        logger.info(f"Downloading FASTQ files for accession {accession}")
-        sra_web.download(
-            accession=accession,
-            out_dir=output_dir,
-            file_format="fastq",
-            split_files=True
-        )
+        # Get SRA metadata
+        logger.info(f"Fetching metadata for accession {accession}")
+        metadata = sra_web.sra_metadata(accession)
         
-        # Get list of downloaded files
+        # Extract run accessions (SRR IDs)
+        run_accessions = metadata['run_accession'].tolist()
+        logger.info(f"Found {len(run_accessions)} runs to download")
+        
+        # Download each run using fasterq-dump
         file_paths = []
-        for file_name in os.listdir(output_dir):
-            if file_name.endswith('.fastq') or file_name.endswith('.fq'):
-                file_paths.append(os.path.join(output_dir, file_name))
+        for run_accession in run_accessions:
+            logger.info(f"Downloading run {run_accession}")
+            
+            # Use fasterq-dump to download
+            result = subprocess.run([
+                'fasterq-dump', 
+                run_accession, 
+                '-O', output_dir,
+                '--split-files'
+            ], check=True, capture_output=True, text=True)
+            
+            # Find downloaded files
+            for file_name in os.listdir(output_dir):
+                if file_name.startswith(run_accession) and (file_name.endswith('.fastq') or file_name.endswith('.fq')):
+                    file_paths.append(os.path.join(output_dir, file_name))
         
         logger.info(f"Successfully downloaded {len(file_paths)} FASTQ files")
         return (True, file_paths)
