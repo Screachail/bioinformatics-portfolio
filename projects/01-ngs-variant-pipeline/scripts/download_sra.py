@@ -2,13 +2,142 @@ import argparse
 import logging
 import os
 import subprocess
-from typing import List, Tuple
+from pathlib import Path
+from typing import Dict, List, Any, Tuple
 
 from pysradb.sraweb import SRAweb
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+def validate_fastq(file_path: Path, logger: logging.Logger) -> Dict[str, Any]:
+    """
+    Validate the structure of a FASTQ file.
+    
+    Args:
+        file_path: Path to the FASTQ file to validate
+        logger: Logger instance for logging messages
+        
+    Returns:
+        Dictionary containing validation results with keys:
+        - "valid": Boolean indicating if the file is valid
+        - "total_reads": Number of reads in the file
+        - "errors": List of error descriptions
+        - "file_size_mb": Size of the file in megabytes
+    """
+    # Initialize return values
+    result = {
+        "valid": True,
+        "total_reads": 0,
+        "errors": [],
+        "file_size_mb": 0.0
+    }
+    
+    # Check if file exists
+    if not file_path.exists():
+        raise FileNotFoundError(f"FASTQ file not found: {file_path}")
+    
+    # Check if file is readable
+    if not os.access(file_path, os.R_OK):
+        raise IOError(f"FASTQ file not readable: {file_path}")
+    
+    # Get file size
+    file_size = file_path.stat().st_size
+    result["file_size_mb"] = file_size / (1024 * 1024)
+    
+    logger.info(f"Validating {file_path.name}...")
+    logger.info(f"File size: {result['file_size_mb']:.2f} MB")
+    
+    # Initialize counters
+    total_reads = 0
+    error_count = 0
+    valid_nucleotides = set('ATCGNatcgN')
+    
+    try:
+        with file_path.open('r') as f:
+            line_num = 0
+            read_lines = []
+            
+            for line in f:
+                line_num += 1
+                line = line.strip()
+                
+                # Store the line for this read
+                read_lines.append(line)
+                
+                # Process complete read (4 lines)
+                if len(read_lines) == 4:
+                    # Check header line (starts with @)
+                    if not read_lines[0].startswith('@'):
+                        error_count += 1
+                        result["valid"] = False
+                        logger.error(f"Line {line_num-3}: Header line does not start with '@'")
+                        result["errors"].append(f"Line {line_num-3}: Header line does not start with '@'")
+                        if error_count > 10:
+                            break
+                    
+                    # Check separator line (starts with +)
+                    if not read_lines[2].startswith('+'):
+                        error_count += 1
+                        result["valid"] = False
+                        logger.error(f"Line {line_num-1}: Separator line does not start with '+'")
+                        result["errors"].append(f"Line {line_num-1}: Separator line does not start with '+'")
+                        if error_count > 10:
+                            break
+                    
+                    # Check sequence and quality lengths match
+                    seq_len = len(read_lines[1])
+                    qual_len = len(read_lines[3])
+                    if seq_len != qual_len:
+                        error_count += 1
+                        result["valid"] = False
+                        logger.error(f"Line {line_num-2}: Sequence length ({seq_len}) does not match quality length ({qual_len})")
+                        result["errors"].append(f"Line {line_num-2}: Sequence length ({seq_len}) does not match quality length ({qual_len})")
+                        if error_count > 10:
+                            break
+                    
+                    # Check sequence contains only valid nucleotides
+                    if seq_len > 0:
+                        if not all(nucleotide in valid_nucleotides for nucleotide in read_lines[1]):
+                            error_count += 1
+                            result["valid"] = False
+                            logger.error(f"Line {line_num-2}: Sequence contains invalid nucleotides")
+                            result["errors"].append(f"Line {line_num-2}: Sequence contains invalid nucleotides")
+                            if error_count > 10:
+                                break
+                    
+                    # Reset for next read
+                    read_lines = []
+                    total_reads += 1
+                    
+                    # Log progress every 100K reads
+                    if total_reads % 100000 == 0:
+                        logger.info(f"Processed {total_reads} reads...")
+            
+            # Check if file has correct number of lines (divisible by 4)
+            if line_num % 4 != 0:
+                error_count += 1
+                result["valid"] = False
+                logger.error(f"File has {line_num} lines, which is not divisible by 4")
+                result["errors"].append(f"File has {line_num} lines, which is not divisible by 4")
+            
+            # Check if file is empty
+            if total_reads == 0 and line_num > 0:
+                error_count += 1
+                result["valid"] = False
+                logger.error("File is empty or contains no valid reads")
+                result["errors"].append("File is empty or contains no valid reads")
+                
+    except Exception as e:
+        logger.error(f"Error reading FASTQ file: {str(e)}")
+        raise IOError(f"Error reading FASTQ file: {str(e)}")
+    
+    logger.info(f"Validation complete: {total_reads} reads, {len(result['errors'])} errors")
+    result["total_reads"] = total_reads
+    
+    return result
 
 
 def download_fastq(accession: str, output_dir: str = "data/raw") -> Tuple[bool, List[str]]:
