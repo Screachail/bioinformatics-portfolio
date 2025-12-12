@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import MagicMock
 from pathlib import Path
 
-# Import the module to test
+# Import the module we're testing
 import sys
 sys.path.insert(0, 'scripts')
 from download_sra import validate_fastq
