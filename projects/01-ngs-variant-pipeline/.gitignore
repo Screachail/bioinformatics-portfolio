@@ -53,3 +53,34 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Data files
+*.fastq
+*.fq
+*.bam
+*.vcf
+*.gz
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
