@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import subprocess
+import time
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
 
@@ -138,6 +139,50 @@ def validate_fastq(file_path: Path, logger: logging.Logger) -> Dict[str, Any]:
     result["total_reads"] = total_reads
     
     return result
+
+
+def get_read_counts(file_path: Path, logger: logging.Logger) -> int:
+    """
+    Get the number of reads in a FASTQ file by fast line counting.
+    
+    Args:
+        file_path: Path to the FASTQ file
+        logger: Logger instance for logging messages
+        
+    Returns:
+        int: Number of reads in the file
+    """
+    start_time = time.time()
+    
+    # Validate file exists and is readable
+    if not file_path.exists():
+        raise FileNotFoundError(f"FASTQ file not found: {file_path}")
+    
+    if not os.access(file_path, os.R_OK):
+        raise IOError(f"FASTQ file not readable: {file_path}")
+    
+    # Fast line counting: sum(1 for _ in file) // 4
+    try:
+        with file_path.open('r') as f:
+            line_count = sum(1 for _ in f)
+            
+        # Validate lines are divisible by 4
+        if line_count % 4 != 0:
+            raise ValueError(f"FASTQ file has {line_count} lines, which is not divisible by 4")
+            
+        read_count = line_count // 4
+        
+    except Exception as e:
+        logger.error(f"Error counting reads in FASTQ file: {str(e)}")
+        raise IOError(f"Error counting reads in FASTQ file: {str(e)}")
+    
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    
+    if elapsed_time > 1:
+        logger.info(f"Read count took {elapsed_time:.2f} seconds for {read_count} reads")
+    
+    return read_count
 
 
 def download_fastq(accession: str, output_dir: str = "data/raw") -> Tuple[bool, List[str]]:
