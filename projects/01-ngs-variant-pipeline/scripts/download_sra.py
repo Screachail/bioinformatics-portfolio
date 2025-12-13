@@ -208,7 +208,12 @@ def download_fastq(accession: str, output_dir: str = "data/raw") -> Tuple[bool, 
             raise RuntimeError("fasterq-dump not found. Please install SRA Toolkit.")
         
         # Initialize SRAweb to get metadata
-        sra_web = SRAweb()
+        logger.info("Initializing SRAweb connection...")
+        try:
+            sra_web = SRAweb()
+        except Exception as e:
+            logger.error(f"Failed to initialize SRAweb: {str(e)}")
+            raise RuntimeError(f"Failed to initialize SRAweb: {str(e)}")
         
         # Get SRA metadata
         logger.info(f"Fetching metadata for accession {accession}")
