@@ -5,7 +5,10 @@ from pathlib import Path
 
 # Import the module we're testing
 import sys
-sys.path.insert(0, 'scripts')
+import os
+# Add the scripts directory to the path so we can import download_sra
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+
 from download_sra import validate_fastq
 
 @pytest.fixture
