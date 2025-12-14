@@ -5,8 +5,7 @@ import subprocess
 import time
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
-
-from pysradb.sraweb import SRAweb
+from pysradb.sraWeb import SRAWeb
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
