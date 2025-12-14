@@ -48,21 +48,75 @@ End-to-end automated pipeline from raw sequencing data (FASTQ) to variant analys
 ## Prerequisites
 
 - Python 3.12+
-- Docker and Docker Compose
-- GCP account
+- Docker and Docker Compose (recommended) OR local tool installation
+- GCP account (for cloud deployment)
 - Git
 
 ## Installation
+
+### 🐳 Docker Setup (Recommended)
+
+**Includes all bioinformatics tools pre-configured:**
+- SRA Toolkit (fasterq-dump)
+- BWA-MEM2 (alignment)
+- GATK (variant calling)
+- SAMtools (BAM processing)
+- All Python dependencies
+
+See **[DOCKER_SETUP.md](DOCKER_SETUP.md)** for detailed instructions.
+
 ```bash
 cd projects/01-ngs-variant-pipeline
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+
+# Build Docker image
+docker compose build
+
+# Run interactive container
+docker compose run --rm ngs-pipeline
+
+# Test pysradb
+python3 -c "import pysradb; print('✓ pysradb installed')"
 ```
+
+### 💻 Local Setup (Alternative)
+
+If Docker is not available, use automated setup script:
+
+```bash
+cd projects/01-ngs-variant-pipeline
+
+# Run automated setup
+./setup_local.sh
+
+# Activate virtual environment
+source venv/bin/activate
+```
+
+See **[LOCAL_SETUP.md](LOCAL_SETUP.md)** for manual installation steps.
 
 ## Usage
 
-Pipeline under active development.
+### Download Test Data
+
+```bash
+# Using Docker
+docker compose run --rm ngs-pipeline \
+  python3 scripts/download_sra.py --accession SRR000001 --output-dir data/raw/test
+
+# Using local setup
+source venv/bin/activate
+python scripts/download_sra.py --accession SRR000001 --output-dir data/raw/test
+```
+
+### Run Tests
+
+```bash
+# Using Docker
+docker compose run --rm ngs-pipeline pytest tests/ -v
+
+# Using local setup
+pytest tests/ -v
+```
 
 ## Data Source
 
