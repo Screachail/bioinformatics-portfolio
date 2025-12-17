@@ -231,9 +231,6 @@ def validate_paired_reads(
         mismatches = []
 
         # Read headers from both files
-        r1_headers = []
-        r2_headers = []
-        
         with open(r1_path, 'r') as f1, open(r2_path, 'r') as f2:
             # Read first max_samples reads from each file
             for i in range(max_samples):
@@ -252,9 +249,6 @@ def validate_paired_reads(
                 # Extract base header (remove /1, /2, .1, .2 suffixes)
                 r1_base = r1_header.lstrip('@').rstrip('/1 /2 .1 .2')
                 r2_base = r2_header.lstrip('@').rstrip('/1 /2 .1 .2')
-                
-                r1_headers.append(r1_base)
-                r2_headers.append(r2_base)
                 
                 # Check if headers match
                 if r1_base != r2_base:
