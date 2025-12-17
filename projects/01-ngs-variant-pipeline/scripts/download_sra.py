@@ -184,6 +184,96 @@ def get_read_counts(file_path: Path, logger: logging.Logger) -> int:
     return read_count
 
 
+def validate_paired_reads(
+    r1_path: Path,
+    r2_path: Path,
+    logger: logging.Logger
+) -> Dict[str, Any]:
+    """
+    Validate that paired-end FASTQ files have matching reads and headers.
+
+    Args:
+        r1_path (Path): Path to read 1 FASTQ file.
+        r2_path (Path): Path to read 2 FASTQ file.
+        logger (logging.Logger): Logger for logging progress.
+
+    Returns:
+        Dict[str, Any]: Dictionary with keys:
+            - 'paired' (bool): True if paired correctly.
+            - 'r1_reads' (int): Number of reads in R1.
+            - 'r2_reads' (int): Number of reads in R2.
+            - 'mismatches' (List[str]): List of mismatched headers.
+
+    Raises:
+        FileNotFoundError: If either file is missing.
+    """
+    # Check if files exist
+    if not r1_path.exists() or not r2_path.exists():
+        logger.error("One or both FASTQ files do not exist.")
+        raise FileNotFoundError("Files are missing")
+
+    try:
+        # Get read counts
+        r1_count = get_read_counts(r1_path, logger)
+        r2_count = get_read_counts(r2_path, logger)
+
+        if r1_count != r2_count:
+            logger.error(f"Read count mismatch: R1={r1_count}, R2={r2_count}")
+            return {
+                'paired': False,
+                'r1_reads': r1_count,
+                'r2_reads': r2_count,
+                'mismatches': []
+            }
+
+        # Sample first 100 reads to check headers
+        max_samples = min(100, r1_count)
+        mismatches = []
+
+        # Read headers from both files
+        r1_headers = []
+        r2_headers = []
+        
+        with open(r1_path, 'r') as f1, open(r2_path, 'r') as f2:
+            # Read first max_samples reads from each file
+            for i in range(max_samples):
+                # Read 4 lines for R1
+                r1_header = f1.readline().strip()
+                f1.readline()  # sequence
+                f1.readline()  # separator
+                f1.readline()  # quality
+                
+                # Read 4 lines for R2
+                r2_header = f2.readline().strip()
+                f2.readline()  # sequence
+                f2.readline()  # separator
+                f2.readline()  # quality
+                
+                # Extract base header (remove /1, /2, .1, .2 suffixes)
+                r1_base = r1_header.lstrip('@').rstrip('/1 /2 .1 .2')
+                r2_base = r2_header.lstrip('@').rstrip('/1 /2 .1 .2')
+                
+                r1_headers.append(r1_base)
+                r2_headers.append(r2_base)
+                
+                # Check if headers match
+                if r1_base != r2_base:
+                    mismatches.append(f"{r1_base} vs {r2_base}")
+                    if len(mismatches) >= 10:
+                        break
+
+        return {
+            'paired': len(mismatches) == 0,
+            'r1_reads': r1_count,
+            'r2_reads': r2_count,
+            'mismatches': mismatches
+        }
+
+    except Exception as e:
+        logger.error(f"Error validating paired reads: {str(e)}")
+        raise
+
+
 def download_fastq(accession: str, output_dir: str = "data/raw") -> Tuple[bool, List[str]]:
     """
     Download FASTQ files from NCBI SRA for a given accession using fasterq-dump.
