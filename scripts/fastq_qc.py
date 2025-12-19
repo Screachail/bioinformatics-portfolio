@@ -39,43 +39,36 @@ percentage (default: (50.0, 51.0)).
             lines = iter(file)
             
             for i, line in enumerate(lines):
-                if i % 4 == 1:  # Sequence is the second line (index 1) of 
-each record
+                if i % 4 == 1:  # Sequence is the second line (index 1) of each record
                     sequence = line.strip().upper()
                     base_counts = Counter(sequence)
                     
-                    gc_bases += base_counts.get('G', 0) + 
-base_counts.get('C', 0)
-                    at_bases += base_counts.get('A', 0) + 
-base_counts.get('T', 0)
+                    gc_bases += base_counts.get('G', 0) + base_counts.get('C', 0)
+                    at_bases += base_counts.get('A', 0) + base_counts.get('T', 0)
                     n_bases += base_counts.get('N', 0)
                     
                     total_sequences += 1
                     
                     # Log progress every 100,000 reads
                     if (i // 4) % 100000 == 0:
-                        logger.info(f"Processed {total_sequences} 
-sequences.")
+                        logger.info(f"Processed {total_sequences} sequences.")
                         
             # Calculate GC percentage
             total_bases = gc_bases + at_bases
             if total_bases == 0:
-                raise ValueError("No valid bases found in the FASTQ 
-file.")
+                raise ValueError("No valid bases found in the FASTQ file.")
             
             gc_percentage = (gc_bases / total_bases) * 100
             rounded_gc = round(gc_percentage, 2)
             
             # Check against expected range
-            in_range = expected_range[0] <= rounded_gc <= 
-expected_range[1]
+            in_range = expected_range[0] <= rounded_gc <= expected_range[1]
             status = "valid" if in_range else "warning"
             
             logger.info(f"GC Percentage: {rounded_gc:.2f}%")
             
             if not in_range:
-                logger.warning("GC content is outside the expected 
-range.")
+                logger.warning("GC content is outside the expected range.")
                 
             return {
                 "gc_percentage": rounded_gc,
