@@ -169,13 +169,11 @@ def test_n_bases_file_not_found(mock_logger):
 def test_n_bases_percentage(tmp_fastq_with_n_bases, mock_logger):
     """Test correct percentage calculation."""
     result = count_n_bases(tmp_fastq_with_n_bases, mock_logger)
-    assert result["n_percentage"] == pytest.approx((result["total_n"] / 
-result["total_bases"]) * 100, abs=1e-6)
+    assert result["n_percentage"] == pytest.approx((result["total_n"] / result["total_bases"]) * 100, abs=1e-6)
 
 def test_gc_content_custom_range(tmp_fastq_high_gc, mock_logger):
     """Test custom expected range."""
-    result = calculate_gc_content(tmp_fastq_high_gc, mock_logger, 
-expected_range=(75.0, 85.0))
+    result = calculate_gc_content(tmp_fastq_high_gc, mock_logger, expected_range=(75.0, 85.0))
     assert result["gc_percentage"] == pytest.approx(80.0, abs=1.0)
     assert result["in_expected_range"]
     assert result["status"] in ["valid", "warning"]
@@ -183,6 +181,5 @@ expected_range=(75.0, 85.0))
 def test_base_quality_statistics(tmp_fastq_good_quality, mock_logger):
     """Test statistical calculations."""
     result = calculate_base_quality(tmp_fastq_good_quality, mock_logger)
-    assert all(key in result for key in ["mean_quality", "min_quality", 
-"max_quality", "median_quality"])
+    assert all(key in result for key in ["mean_quality", "min_quality", "max_quality", "median_quality"])
     assert result["q30_percentage"] > 90.0
