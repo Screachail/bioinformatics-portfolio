@@ -11,12 +11,13 @@ from pathlib import Path
 import logging
 from collections import Counter
 from typing import Dict, Any, Tuple
+import statistics
 
 def calculate_gc_content(file_path: Path, logger: logging.Logger, 
-expected_range: Tuple[float, float] = (50.0, 51.0)) -> Dict[str, Any]:
+expected_range: Tuple[float, float] = (30.0, 70.0)) -> Dict[str, Any]:
     """
     Calculate GC content percentage for a FASTQ file and validate against 
-an expected range.
+    an expected range.
     
     Hey there! This function will help you figure out the GC content of your FASTQ file.
     
@@ -24,7 +25,7 @@ an expected range.
         file_path: Path to the FASTQ file.
         logger: Logger instance for logging progress and results.
         expected_range: Tuple specifying the acceptable range for GC 
-percentage (default: (50.0, 51.0)).
+percentage (default: (30.0, 70.0)).
         
     Returns:
         Dictionary containing GC statistics and validation status.
@@ -67,7 +68,7 @@ percentage (default: (50.0, 51.0)).
             
             # Check against expected range
             in_range = expected_range[0] <= rounded_gc <= expected_range[1]
-            status = "valid" if in_range else "warning"
+            status = "valid" if in_range else "invalid"
             
             logger.info(f"GC Percentage: {rounded_gc:.2f}%")
             
@@ -137,7 +138,7 @@ def calculate_base_quality(file_path: Path, logger: logging.Logger) -> Dict[str,
             mean_quality = sum(quality_scores) / len(quality_scores)
             min_quality = min(quality_scores)
             max_quality = max(quality_scores)
-            median_quality = sorted(quality_scores)[len(quality_scores) // 2]
+            median_quality = statistics.median(quality_scores)
             
             # Calculate Q30+ percentage
             q30_count = sum(1 for q in quality_scores if q >= 30)
@@ -215,6 +216,8 @@ def count_n_bases(file_path: Path, logger: logging.Logger) -> Dict[str, Any]:
             # Determine status based on N base threshold
             if n_percentage < 5:
                 status = "pass"
+            elif n_percentage < 10:
+                status = "warning"
             else:
                 status = "fail"
             
