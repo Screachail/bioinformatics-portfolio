@@ -53,7 +53,7 @@ def validate_fastq(file_path: Path, logger: logging.Logger) -> Dict[str, Any]:
     # Initialize counters
     total_reads = 0
     error_count = 0
-    valid_nucleotides = set('ATCGNatcgN')
+    valid_nucleotides = set('ATCGNatcgn')
     
     try:
         with file_path.open('r') as f:
