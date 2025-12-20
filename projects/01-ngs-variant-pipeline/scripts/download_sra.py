@@ -47,13 +47,29 @@ def validate_fastq(file_path: Path, logger: logging.Logger) -> Dict[str, Any]:
     file_size = file_path.stat().st_size
     result["file_size_mb"] = file_size / (1024 * 1024)
     
-    logger.info(f"Validating {file_path.name}...")
+    logger.info(f"Validating {file_path.name}..")
     logger.info(f"File size: {result['file_size_mb']:.2f} MB")
     
     # Initialize counters
     total_reads = 0
     error_count = 0
-    valid_nucleotides = set('ATCGNatcgn')
+    
+    # IUPAC nucleotide code sets
+    IUPAC_STANDARD = set('ATCGatcg')  # Standard DNA bases
+    IUPAC_AMBIGUOUS = set('NRYSWKMBDHVnryswkmbdhv')  # Ambiguity codes
+    IUPAC_GAP = set('.-')  # Gap characters
+
+    # For NGS data, accept standard bases + N + common ambiguity codes
+    # Full IUPAC would be: IUPAC_STANDARD | IUPAC_AMBIGUOUS | IUPAC_GAP
+    valid_nucleotides = IUPAC_STANDARD | set('Nn') | set('RYSWKMryswkm')
+
+    # Using permissive IUPAC validation:
+    # - Standard bases: ATCG (uppercase and lowercase)
+    # - N: Any base (sequencer uncertainty)
+    # - Common 2-base ambiguity codes: R Y S W K M
+    #   (R=A/G, Y=C/T, S=G/C, W=A/T, K=G/T, M=A/C)
+    # - Excludes rare 3-base codes (BDHV) and gaps (.-) 
+    # - Compatible with most NGS platforms and Sanger sequencing
     
     try:
         with file_path.open('r') as f:
