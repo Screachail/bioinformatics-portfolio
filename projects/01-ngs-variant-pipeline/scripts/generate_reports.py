@@ -61,7 +61,12 @@ def aggregate_qc_results(fastq_dir: pathlib.Path, logger: logging.Logger) -> pd.
             }
 
             # Run validation and QC checks
-            validate_fastq(file, qc_results)
+            validation_result = validate_fastq(file, logger)
+            qc_results['valid'] = validation_result['valid']
+            qc_results['total_reads'] = validation_result['total_reads']
+            qc_results['errors'] = validation_result['errors']
+            qc_results['file_size_mb'] = validation_result['file_size_mb']
+            
             calculate_gc_content(file, qc_results)
             calculate_base_quality(file, qc_results)
             count_n_bases(file, qc_results)
