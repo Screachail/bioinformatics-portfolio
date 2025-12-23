@@ -31,3 +31,57 @@ from scripts.download_sra import validate_fastq
 # Module-level logger configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def aggregate_qc_results(fastq_dir: pathlib.Path, logger: logging.Logger) -> pd.DataFrame:
+    """
+    Aggregate quality control metrics from multiple FASTQ files in a directory.
+    
+    Args:
+        fastq_dir (pathlib.Path): Directory containing FASTQ files to process.
+        logger (logging.Logger): Logger instance for logging processing steps and errors.
+        
+    Returns:
+        pd.DataFrame: DataFrame containing aggregated QC metrics for all processed files.
+    """
+    files = list(fastq_dir.glob("*.fastq"))
+    
+    if not files:
+        logger.info(f"No FASTQ files found in {fastq_dir}")
+        return pd.DataFrame()
+    
+    results = []
+    
+    for file in files:
+        try:
+            # Initialize QC results dictionary
+            qc_results = {
+                "filename": str(file.name),
+                "file_size_mb": round(file.stat().st_size / (1024 * 1024), 2)
+            }
+
+            # Run validation and QC checks
+            validate_fastq(file, qc_results)
+            calculate_gc_content(file, qc_results)
+            calculate_base_quality(file, qc_results)
+            count_n_bases(file, qc_results)
+
+            results.append(qc_results)
+            logger.info(f"Successfully processed {file.name}")
+
+        except FileNotFoundError as e:
+            logger.warning(f"File not found: {file}. Skipping.")
+            continue
+        except ValueError as e:
+            logger.warning(f"Invalid data in file {file}: {e}")
+            continue
+        except Exception as e:
+            logger.warning(f"Failed to process {file}: {str(e)}")
+            continue
+
+    # Convert results list to DataFrame and sort by filename
+    df = pd.DataFrame(results).sort_values(by="filename")
+
+    logger.info(f"Completed: {len(df)} files processed successfully")
+    
+    return df
