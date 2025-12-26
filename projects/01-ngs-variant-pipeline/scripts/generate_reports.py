@@ -67,9 +67,21 @@ def aggregate_qc_results(fastq_dir: pathlib.Path, logger: logging.Logger) -> pd.
             qc_results['errors'] = validation_result['errors']
             qc_results['file_size_mb'] = validation_result['file_size_mb']
             
-            calculate_gc_content(file, qc_results)
-            calculate_base_quality(file, qc_results)
-            count_n_bases(file, qc_results)
+            # Get GC content metrics
+            gc_result = calculate_gc_content(file, logger)
+            qc_results['gc_percentage'] = round(gc_result['gc_percentage'], 2)
+            qc_results['gc_status'] = gc_result['status']
+            
+            # Get base quality metrics
+            qual_result = calculate_base_quality(file, logger)
+            qc_results['mean_quality'] = round(qual_result['mean_quality'], 1)
+            qc_results['q30_percentage'] = round(qual_result['q30_percentage'], 1)
+            qc_results['quality_status'] = qual_result['status']
+            
+            # Get N bases metrics
+            n_result = count_n_bases(file, logger)
+            qc_results['n_percentage'] = round(n_result['n_percentage'], 2)
+            qc_results['n_status'] = n_result['status']
 
             results.append(qc_results)
             logger.info(f"Successfully processed {file.name}")
