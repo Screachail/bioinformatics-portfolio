@@ -1,0 +1,20 @@
+# Podstawowe biblioteki do analizy danych
+numpy
+pandas
+pyarrow
+
+# Bioinformatyka i grafy
+biopython
+obonet
+networkx
+
+# Machine Learning i Deep Learning
+torch
+transformers
+xgboost
+scikit-learn
+joblib
+
+# Narzędzia pomocnicze
+tqdm
+matplotlib
