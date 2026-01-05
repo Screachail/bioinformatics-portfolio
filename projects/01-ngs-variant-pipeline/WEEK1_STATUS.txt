@@ -1,0 +1,10 @@
+
+WEEK 1 PROGRESS:
+✅ Day 1-2: Validation functions (validate_fastq, get_read_counts, validate_paired_reads)
+✅ Day 3: QC metrics (calculate_gc_content, calculate_base_quality, count_n_bases)
+⏳ Day 4: Tests for QC module (next)
+⏳ Day 5-6: Report generation
+⏳ Day 7: Integration tests & docs
+
+Current: 60% complete
+

@@ -1,0 +1,16 @@
+# Blokada przesyłania ciężkich danych na GitHub
+data/
+models/
+*.npy
+*.parquet
+*.tsv
+*.pth
+*.zip
+*.tar.gz
+*.csv
+.ipynb_checkpoints/
+
+# Środowisko i system
+.venv/
+__pycache__/
+.DS_Store

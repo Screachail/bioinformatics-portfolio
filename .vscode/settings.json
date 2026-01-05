@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./projects/01-ngs-variant-pipeline/scripts"
+    ]
+}
