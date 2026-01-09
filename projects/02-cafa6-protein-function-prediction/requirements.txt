@@ -1,20 +1,109 @@
-# Podstawowe biblioteki do analizy danych
-numpy
-pandas
-pyarrow
+# ═══════════════════════════════════════════════════════════════
+# CAFA 6 Protein Function Prediction - Requirements
+# ═══════════════════════════════════════════════════════════════
+# Python 3.10+ recommended (tested on 3.12)
+# ═══════════════════════════════════════════════════════════════
 
-# Bioinformatyka i grafy
-biopython
-obonet
-networkx
+# ──────────────────────────────────────────────────────────────
+# Core Scientific Computing
+# ──────────────────────────────────────────────────────────────
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
 
-# Machine Learning i Deep Learning
-torch
-transformers
-xgboost
-scikit-learn
-joblib
+# ──────────────────────────────────────────────────────────────
+# Machine Learning
+# ──────────────────────────────────────────────────────────────
+scikit-learn>=1.3.0
+xgboost>=2.0.0
 
-# Narzędzia pomocnicze
-tqdm
-matplotlib
+# Deep Learning (PyTorch)
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# ──────────────────────────────────────────────────────────────
+# Protein Language Models
+# ──────────────────────────────────────────────────────────────
+fair-esm>=2.0.0        # ESM2 models from Facebook AI
+transformers>=4.30.0   # HuggingFace transformers
+sentencepiece>=0.1.99  # Tokenization
+
+# ──────────────────────────────────────────────────────────────
+# Bioinformatics
+# ──────────────────────────────────────────────────────────────
+biopython>=1.81       # Sequence parsing (FASTA, etc)
+obonet>=1.0.0         # GO ontology parsing
+networkx>=3.0         # Graph operations for GO hierarchy
+
+# ──────────────────────────────────────────────────────────────
+# Data Visualization
+# ──────────────────────────────────────────────────────────────
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.14.0
+
+# Dimensionality reduction
+umap-learn>=0.5.3
+
+# ──────────────────────────────────────────────────────────────
+# Jupyter & Interactive
+# ──────────────────────────────────────────────────────────────
+jupyter>=1.0.0
+notebook>=7.0.0
+ipywidgets>=8.0.0
+tqdm>=4.65.0          # Progress bars
+
+# ──────────────────────────────────────────────────────────────
+# Data Storage & Processing
+# ──────────────────────────────────────────────────────────────
+pyarrow>=12.0.0       # Parquet support
+h5py>=3.8.0           # HDF5 files
+pickle5>=0.0.12       # Enhanced pickling
+
+# ──────────────────────────────────────────────────────────────
+# Utilities
+# ──────────────────────────────────────────────────────────────
+pyyaml>=6.0           # Configuration files
+python-dotenv>=1.0.0  # Environment variables
+click>=8.1.0          # CLI interfaces
+
+# ──────────────────────────────────────────────────────────────
+# Development & Testing (Optional)
+# ──────────────────────────────────────────────────────────────
+pytest>=7.3.0
+pytest-cov>=4.1.0
+black>=23.3.0         # Code formatting
+flake8>=6.0.0         # Linting
+isort>=5.12.0         # Import sorting
+mypy>=1.3.0           # Type checking
+
+# ──────────────────────────────────────────────────────────────
+# Kaggle Integration (Optional)
+# ──────────────────────────────────────────────────────────────
+kaggle>=1.5.16        # Kaggle API
+
+# ──────────────────────────────────────────────────────────────
+# GPU Acceleration (Conditional)
+# ──────────────────────────────────────────────────────────────
+# For CUDA 11.8 (adjust version if needed):
+# torch>=2.0.0+cu118
+# torchvision>=0.15.0+cu118
+# torchaudio>=2.0.0+cu118
+# Install from: https://pytorch.org/get-started/locally/
+
+# ──────────────────────────────────────────────────────────────
+# Notes
+# ──────────────────────────────────────────────────────────────
+# 1. PyTorch: Install appropriate CUDA version for your GPU
+# 2. ESM models: Requires ~2GB download on first use
+# 3. Total installation size: ~5-7GB (with PyTorch+CUDA)
+# 
+# Installation:
+#   pip install -r requirements.txt
+# 
+# Or with conda:
+#   conda env create -f environment.yml  # (if provided)
+#
+# GPU Setup:
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118

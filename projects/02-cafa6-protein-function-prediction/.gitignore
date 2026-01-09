@@ -1,16 +1,241 @@
-# Blokada przesyłania ciężkich danych na GitHub
-data/
-models/
-*.npy
-*.parquet
-*.tsv
-*.pth
+# ═══════════════════════════════════════════════════════════════
+# CAFA 6 PROJECT - .GITIGNORE
+# ═══════════════════════════════════════════════════════════════
+# Keep repo size manageable while preserving essential files
+# ═══════════════════════════════════════════════════════════════
+
+# ──────────────────────────────────────────────────────────────
+# HEAVY BIOLOGICAL DATA (archive locally, not on GitHub)
+# ──────────────────────────────────────────────────────────────
+
+# Raw sequence data
+data/raw/*.fasta
+data/raw/*.fa
+data/raw/*.fastq
+data/raw/*.fastq.gz
+
+# Large intermediate files  
+data/bronze/**/*.parquet
+data/silver/**/*.parquet
+data/gold/**/*.parquet
+data/processed/**/*.parquet
+
+# But KEEP structure and samples
+!data/**/.gitkeep
+!data/**/README.md
+!data/samples/**/*
+
+# ──────────────────────────────────────────────────────────────
+# EMBEDDINGS & MODEL FILES (keep essential only)
+# ──────────────────────────────────────────────────────────────
+
+# Large embeddings (>100MB)
+# NOTE: Current embeddings in data/embeddings/ ARE tracked (293MB)
+# They're essential for EDA. If they grow larger, use Git LFS.
+
+# Intermediate predictions
+data/**/*_predictions.npy
+data/**/*_proba.npy
+data/**/y_pred*.npy
+
+# Model checkpoints (keep final only)
+models/checkpoints/
+models/**/*.ckpt
+models/**/*.tmp
+
+# ──────────────────────────────────────────────────────────────
+# SUBMISSIONS (keep best only)
+# ──────────────────────────────────────────────────────────────
+
+# All submissions except best
+notebooks/submission*.tsv
+!results/submission_best.tsv
+
+# Submission archives
 *.zip
 *.tar.gz
-*.csv
-.ipynb_checkpoints/
+*.7z
 
-# Środowisko i system
+# ──────────────────────────────────────────────────────────────
+# PYTHON ENVIRONMENT
+# ──────────────────────────────────────────────────────────────
+
+# Virtual environments
 .venv/
+venv/
+env/
+ENV/
+.conda/
+
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ──────────────────────────────────────────────────────────────
+# JUPYTER NOTEBOOKS
+# ──────────────────────────────────────────────────────────────
+
+# Checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Notebook outputs (optional - keep for portfolio showcase)
+# Uncomment to ignore all outputs:
+# **/*.ipynb
+
+# ──────────────────────────────────────────────────────────────
+# IDE & EDITORS
+# ──────────────────────────────────────────────────────────────
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# ──────────────────────────────────────────────────────────────
+# OS GENERATED
+# ──────────────────────────────────────────────────────────────
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+
+# ──────────────────────────────────────────────────────────────
+# LOGS & TEMP FILES
+# ──────────────────────────────────────────────────────────────
+
+# Logs
+*.log
+logs/
+**/*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# ──────────────────────────────────────────────────────────────
+# PROJECT SPECIFIC
+# ──────────────────────────────────────────────────────────────
+
+# Kaggle
+.kaggle/
+
+# MLflow
+mlruns/
+
+# Weights & Biases
+wandb/
+
+# Tensorboard
+runs/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Pytest
+.pytest_cache/
+.tox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ──────────────────────────────────────────────────────────────
+# WHAT WE DO COMMIT (explicit allow list)
+# ──────────────────────────────────────────────────────────────
+
+# ✅ Source code
+# *.py
+
+# ✅ Notebooks (with outputs for showcase)
+# *.ipynb
+
+# ✅ Documentation
+# *.md
+
+# ✅ Configuration
+# *.yaml, *.yml, *.json, *.toml
+
+# ✅ Requirements
+# requirements*.txt
+
+# ✅ Small data samples
+# data/samples/**/*
+
+# ✅ Essential embeddings (currently 293MB)
+# data/embeddings/*.npy
+
+# ✅ Best submission (202MB)
+# results/submission_best.tsv
+
+# ✅ Trained models (8.7MB)
+# models/*.pkl, models/*.pth
+
+# ✅ Key figures for README
+# figures/**/*.png (selectively)
+
+# ──────────────────────────────────────────────────────────────
+# NOTES
+# ──────────────────────────────────────────────────────────────
+
+# Current repo size: ~504MB (perfect for GitHub!)
+# Archived locally: ~/cafa6-archive/ (~3.3GB)
+# 
+# If repo grows >1GB, consider:
+# 1. Git LFS for large files
+# 2. Moving more data to archive
+# 3. Reducing figure sizes
+
+# Large files (moved to ~/cafa6-archive/)
+data/embeddings/*.npy
+results/submission_best.tsv
